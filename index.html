@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      html {
+        margin: 0;
+        padding: 0;
+      }
+      #error {
+        border: 1px solid red;
+        padding: 1px;
+        border-radius: 0.5rem;
+      }
+      #results {
+        border: 1px solid green;
+        border-radius: 0.5rem;
+
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+
+      body {
+        width: 75%;
+        text-align: center;
+        align-items: center;
+        margin: 0 auto;
+      }
+      input {
+        margin: 10px 0px;
+      }
+      button:hover {
+        background-color: limegreen;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>IP Address Tracker</h1>
+    <form>
+      <label for="ipAddress">Enter required IP Address: </label>
+      <input id="ipAddress" required />
+      <button type="submit">Track IP</button>
+    </form>
+    <div id="data"></div>
+    <script>
+      const btn = document.querySelector('button');
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const ipAddress = document.querySelector('#ipAddress').value;
+        const data = document.querySelector('#data');
+        const rPara = document.querySelector('#results');
+        const ePara = document.querySelector('#error');
+        if (rPara) data.removeChild(rPara);
+        if (ePara) data.removeChild(ePara);
+        const body = document.querySelector('body');
+        const resultsPara = document.createElement('p');
+        const errorPara = document.createElement('p');
+
+        try {
+          if (!ipAddress) throw new Error('please enter an ip address');
+          const result = await fetch(
+            `https://ipinfo.io/${ipAddress}?token=f60ada3d3e9ea3`
+          );
+          const output = await result.json();
+          if (output.bogon)
+            throw new Error('This IP Address is not registered yet.');
+          if (output.error) {
+            throw new Error(output.error.message);
+          } else {
+            const locationContent = `ip:${output.ip} 
+            city:${output.city}
+            country:${output.country}
+            region:${output.region}
+            timezone:${output.timezone}
+            location:${output.loc}
+            isp:${output.org}
+            `;
+            resultsPara.setAttribute('id', 'results');
+            resultsPara.innerText = locationContent;
+            data.appendChild(resultsPara);
+          }
+        } catch (e) {
+          errorPara.setAttribute('id', 'error');
+          const errorContent = e;
+          errorPara.innerText = errorContent;
+          data.appendChild(errorPara);
+        }
+      });
+    </script>
+  </body>
+</html>
+
+<!-- for submit handler -->
